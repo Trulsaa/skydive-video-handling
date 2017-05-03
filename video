@@ -1,6 +1,7 @@
 #!/bin/bash	
 
-kilde=/Volumes/NO\ NAME/AFF\ reklame
+disk=/Volumes/No\ Name/
+kilde="$disk"AFF\ reklame
 arkiv=~/Desktop/$(date +%Y%m%d)
 
 #Lager ny arkivmappe dersom den ikke eksisterer
@@ -13,10 +14,10 @@ for file in "$kilde"/*; do
 done
 
 #kopierer nyeste fil fra kilde til akriv, men overskriver ikke
-cp -n "$file" "$arkiv"
+mv -n "$kilde"/* "$arkiv"
 
 #Kobler fra volumet
-diskutil unmount /Volumes/NO\ NAME
+#diskutil unmount "$disk"
 
 # Finner nyeste fil i arkivet
 unset -v latest
@@ -24,9 +25,9 @@ for file in "$arkiv"/*; do
   [[ $file -nt $latest ]] && latest=$file
 done
 
-#Åpner mappen til nyeste fil i arkivet og opner samme fil i VLC
+#Åpner mappen til nyeste fil i arkivet og opner samme fil i Quicktime
 open -R "$file"
-#open -a /Applications/VLC.app "$file"
+open "$file"
 
 #Åpner video flippet og fullscreen i VLC
-/Applications/VLC.app/Contents/MacOS/VLC "$file" --video-filter=transform --transform-type=180 --fullscreen
+#/Applications/VLC.app/Contents/MacOS/VLC "$file" --video-filter=transform --transform-type=180 --fullscreen
