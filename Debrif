@@ -23,5 +23,5 @@ done
 open -R "$file"
 open "$file"
 
-#Åpner video flippet og fullscreen i VLC
+#Åpner videoen flippet opp ned og i fullscreen i VLC
 #/Applications/VLC.app/Contents/MacOS/VLC "$file" --video-filter=transform --transform-type=180 --fullscreen
