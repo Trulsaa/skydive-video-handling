@@ -1,14 +1,14 @@
 #!/bin/bash	
 
-disk=/Volumes/No\ Name/
-kilde="$disk"AFF\ reklame
+disk=/Volumes/No\ Name/DCIM/100GOPRO/
+kilde="$disk"
 arkiv=~/Desktop/$(date +%Y%m%d)
 
 #Lager ny arkivmappe dersom den ikke eksisterer
 mkdir -p "$arkiv"
 
 #kopierer alle filer fra kilde til akriv, men overskriver ikke
-mv -n "$kilde"/* "$arkiv"
+mv -n "$kilde"/*.MP4 "$arkiv"
 
 #Kobler fra volumet
 diskutil unmount "$disk"
