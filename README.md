@@ -1,2 +1,2 @@
 # skydive-video-handling
-Scripts som brukes til å lære BASH samt å forbered workflow rundt håndtering av video under fallskjermhopping.
+Scripts used for learning BASH and ultimatly to improve workflow when handling video during skydiving.
