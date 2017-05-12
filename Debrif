@@ -15,7 +15,17 @@ rm "$kilde"/*.THM
 #Kobler fra volumet
 diskutil unmount "$disk"
 
-#Åpner mappen til nyeste fil i arkivet og åpner samme fil i Quicktime
+# # Finner nyeste fil i arkivet
+# unset -v latest
+# for file in "$arkiv"/*; do
+#   [[ $file -nt $latest ]] && latest=$file
+# done
+
+# #Åpner mappen til nyeste fil i arkivet og opner samme fil i Quicktime
+# open -R "$file"
+# open "$file"
+
+#Åpner arkiv mappen og alle .MP4 filene i den mappen
 open "$arkiv"
 open "$arkiv"/*.MP4
 
