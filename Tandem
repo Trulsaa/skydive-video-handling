@@ -1,33 +1,21 @@
 #!/bin/bash	
 
-disk=/Volumes/No\ Name/
-kilde="$disk"AFF\ reklame
-arkiv=~/Desktop/$(date +%Y%m%d)
+# Brukerhistorie
+# lag mappe for tandem video og bilder
+# kopier videoredigerings template
+# flytt alle bilder til bilde arkiv
+# flytt alle videoer til redigerings bibliotek
+# flytt alle bilder til usb pinne
+
+#disk=/Volumes/No\ Name/
+#kilde="$disk"AFF\ reklame
+bildearkiv=~/Desktop/$(date +%Y%m%d)/bilder
 
 #Lager ny arkivmappe dersom den ikke eksisterer
-mkdir -p "$arkiv"
-
-# Finner nyeste fil i kilden
-unset -v latest
-for file in "$kilde"/*; do
-  [[ $file -nt $latest ]] && latest=$file
-done
+mkdir -p "$bildearkiv"
 
 #kopierer nyeste fil fra kilde til akriv, men overskriver ikke
-mv -n "$kilde"/* "$arkiv"
+#mv -n "$kilde"/* "$arkiv"
 
 #Kobler fra volumet
 #diskutil unmount "$disk"
-
-# Finner nyeste fil i arkivet
-unset -v latest
-for file in "$arkiv"/*; do
-  [[ $file -nt $latest ]] && latest=$file
-done
-
-#Åpner mappen til nyeste fil i arkivet og opner samme fil i Quicktime
-open -R "$file"
-open "$file"
-
-#Åpner video flippet og fullscreen i VLC
-#/Applications/VLC.app/Contents/MacOS/VLC "$file" --video-filter=transform --transform-type=180 --fullscreen
