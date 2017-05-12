@@ -1,33 +1,36 @@
 #!/bin/bash	
 
 disk=/Volumes/No\ Name
-kilde="$disk"/DCIM/100GOPRO
-arkiv=~/Desktop/$(date +%Y%m%d)
+folder="$disk"/DCIM/100GOPRO
+arkive=~/Desktop/$(date +%Y%m%d)
 
-#Lager ny arkivmappe dersom den ikke eksisterer
-mkdir -p "$arkiv"
+#Creates a new arkive folder
+mkdir -p "$arkive"
 
-#kopierer alle filer fra kilde til akriv, men overskriver ikke og sletter .LRV og .THM filer
-mv -n "$kilde"/*.MP4 "$arkiv"
-rm "$kilde"/*.LRV
-rm "$kilde"/*.THM
+#Moves all files from the source to the arkive, but does not overwrite existing files
+mv -n "$folder"/*.MP4 "$arkive"
 
-#Kobler fra volumet
+#Deletes .LRV and .THM files from source
+rm "$folder"/*.LRV
+rm "$folder"/*.THM
+
+#umounts the source disk
 diskutil unmount "$disk"
 
-# # Finner nyeste fil i arkivet
+# # Finds the newest file in the arkive
 # unset -v latest
-# for file in "$arkiv"/*; do
+# for file in "$arkive"/*; do
 #   [[ $file -nt $latest ]] && latest=$file
 # done
 
-# #Åpner mappen til nyeste fil i arkivet og opner samme fil i Quicktime
-# open -R "$file"
+# #Opens the arkive folder
+open "$arkive"
+
+# # Opens the newest video in the arkive folder
 # open "$file"
 
-#Åpner arkiv mappen og alle .MP4 filene i den mappen
-open "$arkiv"
-open "$arkiv"/*.MP4
+# Opens all of the videos in the arkive folder
+open "$arkive"/*.MP4
 
-#Åpner videoen flippet opp ned og i fullscreen i VLC
+# #Opens the newest file in the arkive folder flippet up side down and in full screen usin VLC 
 #/Applications/VLC.app/Contents/MacOS/VLC "$file" --video-filter=transform --transform-type=180 --fullscreen
