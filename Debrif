@@ -1,27 +1,51 @@
 #!/bin/bash
 
-disk=/Volumes/No\ Name
-folder="$disk"/DCIM/100GOPRO
+
+# On a Mac this script requires GNU find. Can be installed by running "brew install findutils --with-default-names" and restarting the Mac
+
+#Get the current users full name
+username=$(finger `whoami` | awk -F: '{ print $3 }' | head -n1 | sed 's/^ //')
+
+# Finds the full path to the video files on the external volume
+#find /Volumes -type d \( -path /Volumes/Macintosh\ HD -o -path /Volumes/MobileBackups -o -path /Volumes/Time\ Machine\ Backups -o -path /Volumes/"$username" \) -prune -o -name '*.MP4' -print
+
+# gir kun filnavn
+#find /Volumes -type d \( -path /Volumes/Macintosh\ HD -o -path /Volumes/MobileBackups -o -path /Volumes/Time\ Machine\ Backups -o -path /Volumes/"$username" \) -prune -o -name '*.MP4' -print |sed 's#.*/##'
+
+#Gives file path to Gir kun filbanen til mappa (Requires GNU find)
+#find /Volumes -type d \( -path /Volumes/Macintosh\ HD -o -path /Volumes/MobileBackups -o -path /Volumes/Time\ Machine\ Backups -o -path /Volumes/"$username" \) -prune -o -name '*.MP4' -printf '%h\n' | sort | uniq
+a=$(find /Volumes -type d \( -path /Volumes/Macintosh\ HD -o -path /Volumes/MobileBackups -o -path /Volumes/Time\ Machine\ Backups -o -path /Volumes/"$username" \) -prune -o -name '*.MP4' -printf '%h\n' | sort | uniq | wc -l)
+b="       1"
+echo "$a"
+if [[ "$a" = $b ]]; then
+  echo "$a = $b"
+else
+  echo "$a != $b"
+fi
+
+#disk=/Volumes/No\ Name
+#folder="$disk"/DCIM/100GOPRO
+folder=$(find /Volumes -type d \( -path /Volumes/Macintosh\ HD -o -path /Volumes/MobileBackups -o -path /Volumes/Time\ Machine\ Backups -o -path /Volumes/"$username" \) -prune -o -name '*.MP4' -printf '%h\n' | sort | uniq)
 arkive=~/Desktop/$(date +%Y%m%d)
 
-#Creates a new arkive folder
-mkdir -p "$arkive"
-
-#Deletes .LRV and .THM files from source
-rm "$folder"/*.LRV
-rm "$folder"/*.THM
-
-# Creates a hidden file with all of the filenames in folder
-ls -1 "$folder" >> "$arkive"/.filenames
-
-#Moves all files from the source to the arkive, but does not overwrite existing files
-# and appends T_ to the front of all the filenames
-while read filename; do
-  mv -n "$folder"/$filename "$arkive"/T_$filename;
-done <"$arkive"/.filenames
-
-#deletes .filenames
-rm "$arkive"/.filenames
+# #Creates a new arkive folder
+# mkdir -p "$arkive"
+#
+# #Deletes .LRV and .THM files from source
+# rm "$folder"/*.LRV
+# rm "$folder"/*.THM
+#
+# # Creates a hidden file with all of the filenames in folder
+# ls -1 "$folder" >> "$arkive"/.filenames
+#
+# #Moves all files from the source to the arkive, but does not overwrite existing files
+# # and appends T_ to the front of all the filenames
+# while read filename; do
+#   mv -n "$folder"/$filename "$arkive"/T_$filename;
+# done <"$arkive"/.filenames
+#
+# #deletes .filenames
+# rm "$arkive"/.filenames
 
 #umounts the source disk
 #diskutil unmount "$disk"
@@ -33,13 +57,13 @@ rm "$arkive"/.filenames
 # done
 
 # #Opens the arkive folder
-open "$arkive"
+#open "$arkive"
 
-# # Opens the newest video in the arkive folder
-# open "$file"
+# Opens the newest video in the arkive folder
+#open "$file"
 
-# Opens all of the videos in the arkive folder
-# open "$arkive"/*.MP4
+#Opens all of the videos in the arkive folder
+#open "$arkive"/*.MP4
 
-# #Opens the newest file in the arkive folder flipped up side down and in full screen usin VLC
+#Opens the newest file in the arkive folder flipped up side down and in full screen usin VLC
 #/Applications/VLC.app/Contents/MacOS/VLC "$file" --video-filter=transform --transform-type=180 --fullscreen
