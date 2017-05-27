@@ -1,4 +1,4 @@
-#!/bin/bash	
+#!/bin/bash
 
 disk=/Volumes/No\ Name
 folder="$disk"/DCIM/100GOPRO
@@ -7,15 +7,24 @@ arkive=~/Desktop/$(date +%Y%m%d)
 #Creates a new arkive folder
 mkdir -p "$arkive"
 
-#Moves all files from the source to the arkive, but does not overwrite existing files
-mv -n "$folder"/*.MP4 "$arkive"
-
 #Deletes .LRV and .THM files from source
 rm "$folder"/*.LRV
 rm "$folder"/*.THM
 
+# Creates a hidden file with all of the filenames in folder
+ls -1 "$folder" >> "$arkive"/.filenames
+
+#Moves all files from the source to the arkive, but does not overwrite existing files
+# and appends T_ to the front of all the filenames
+while read filename; do
+  mv -n "$folder"/$filename "$arkive"/T_$filename;
+done <"$arkive"/.filenames
+
+#deletes .filenames
+rm "$arkive"/.filenames
+
 #umounts the source disk
-diskutil unmount "$disk"
+#diskutil unmount "$disk"
 
 # # Finds the newest file in the arkive
 # unset -v latest
@@ -30,7 +39,7 @@ open "$arkive"
 # open "$file"
 
 # Opens all of the videos in the arkive folder
-open "$arkive"/*.MP4
+# open "$arkive"/*.MP4
 
-# #Opens the newest file in the arkive folder flippet up side down and in full screen usin VLC 
+# #Opens the newest file in the arkive folder flipped up side down and in full screen usin VLC
 #/Applications/VLC.app/Contents/MacOS/VLC "$file" --video-filter=transform --transform-type=180 --fullscreen
