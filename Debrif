@@ -1,7 +1,36 @@
 #!/bin/bash
 
-
 # On a Mac this script requires GNU find. Can be installed by running "brew install findutils --with-default-names" and restarting the Mac
+
+# Reset algorithm for testing (befor test start copy all files from source to a directory called test on Desktop)
+if [[ $1 = "-reset" ]]; then
+  cp -n ~/Desktop/test/* /Volumes/NO\ NAME/DCIM/100GOPRO/
+  echo "Files in /Volumes/NO\ NAME/DCIM/100GOPRO/"
+  ls -1 /Volumes/NO\ NAME/DCIM/100GOPRO/
+  rm -d ~/Desktop/$(date +%Y%m%d)/*
+  rm ~/Desktop/$(date +%Y%m%d)/.filenames
+  rm ~/Desktop/$(date +%Y%m%d)/.filenamesall
+  echo "All files in ~/Desktop/$(date +%Y%m%d)/ deleted"
+  exit 1
+fi
+
+# Sets the variable $photografer to $1. If no input photografer is set to T
+# Else $photografer is set to input $1 and how many of the newest videos should be copied is asked for
+if [[ $1 = "" || $1 = "T" ]]; then
+  echo "Photografer = T"
+  photografer="T"
+else
+  echo "Photografer = $1"
+  photografer="$1"
+
+# Asks for input and recors it to videos
+  read -p "How many of the newest videos should be copied (default = 1)? " videos
+
+# Sets default value for videos to 1
+  videos=${videos:-1}
+
+#  echo "Number of the newst videos to be copied $videos"
+fi
 
 #Get the current users full name
 username=$(finger `whoami` | awk -F: '{ print $3 }' | head -n1 | sed 's/^ //')
@@ -12,43 +41,73 @@ username=$(finger `whoami` | awk -F: '{ print $3 }' | head -n1 | sed 's/^ //')
 # gir kun filnavn
 #find /Volumes -type d \( -path /Volumes/Macintosh\ HD -o -path /Volumes/MobileBackups -o -path /Volumes/Time\ Machine\ Backups -o -path /Volumes/"$username" \) -prune -o -name '*.MP4' -print |sed 's#.*/##'
 
-#Gives file path to Gir kun filbanen til mappa (Requires GNU find)
+#Gives file path to folder with *.MP4 (Requires GNU find)
 #find /Volumes -type d \( -path /Volumes/Macintosh\ HD -o -path /Volumes/MobileBackups -o -path /Volumes/Time\ Machine\ Backups -o -path /Volumes/"$username" \) -prune -o -name '*.MP4' -printf '%h\n' | sort | uniq
-a=$(find /Volumes -type d \( -path /Volumes/Macintosh\ HD -o -path /Volumes/MobileBackups -o -path /Volumes/Time\ Machine\ Backups -o -path /Volumes/"$username" \) -prune -o -name '*.MP4' -printf '%h\n' | sort | uniq | wc -l)
-b="       1"
-echo "$a"
-if [[ "$a" = $b ]]; then
-  echo "$a = $b"
-else
-  echo "$a != $b"
+
+# Counts the number of uniq directorys with .MP4 inside (Requires GNU find)
+dirs_with_mp4=$(find /Volumes -type d \( -path /Volumes/Macintosh\ HD -o -path /Volumes/MobileBackups -o -path /Volumes/Time\ Machine\ Backups -o -path /Volumes/"$username" \) -prune -o -name '*.MP4' -printf '%h\n' | sort | uniq | wc -l)
+
+# Checks if there is more or less than one path with .MP4 files and exits if true.
+if [[ "$dirs_with_mp4" != "       1" ]];
+then
+  echo "There are $dirs_with_mp4 directorys with MP4 files. Only number accepted is 1. Script stopped"
+  exit 1
 fi
 
-#disk=/Volumes/No\ Name
-#folder="$disk"/DCIM/100GOPRO
+# Creates a variable and sets it to the directory where there are MP4 files
 folder=$(find /Volumes -type d \( -path /Volumes/Macintosh\ HD -o -path /Volumes/MobileBackups -o -path /Volumes/Time\ Machine\ Backups -o -path /Volumes/"$username" \) -prune -o -name '*.MP4' -printf '%h\n' | sort | uniq)
+# echo "The folder variable was set to $folder"
+
+# # Creates a variable and sets it to the volume where there are MP4 file
+volume=$(find /Volumes -type d \( -path /Volumes/Macintosh\ HD -o -path /Volumes/MobileBackups -o -path /Volumes/Time\ Machine\ Backups -o -path /Volumes/"$username" \) -prune -o -name '*.MP4' -printf '%h\n' | sort | uniq | sed 's/\/Volumes\/*//' | sed 's/\/.*//')
+
+# Creates a variable with the arkive direktory path with name set to todays date
 arkive=~/Desktop/$(date +%Y%m%d)
+# echo "arkive satt til $arkive"
 
-# #Creates a new arkive folder
-# mkdir -p "$arkive"
-#
-# #Deletes .LRV and .THM files from source
-# rm "$folder"/*.LRV
-# rm "$folder"/*.THM
-#
-# # Creates a hidden file with all of the filenames in folder
-# ls -1 "$folder" >> "$arkive"/.filenames
-#
-# #Moves all files from the source to the arkive, but does not overwrite existing files
-# # and appends T_ to the front of all the filenames
-# while read filename; do
-#   mv -n "$folder"/$filename "$arkive"/T_$filename;
-# done <"$arkive"/.filenames
-#
-# #deletes .filenames
-# rm "$arkive"/.filenames
+# Creates a new arkive path
+mkdir -p "$arkive"
+# echo "$arkive was created"
 
-#umounts the source disk
-#diskutil unmount "$disk"
+# Creates a hidden file with all of the filenames in folder
+ls -1 "$folder" >> "$arkive"/.filenamesall
+
+# remove lines with .LRV and .THM from .filenames
+sed -i '' '/.LRV/d' "$arkive"/.filenamesall
+sed -i '' '/.THM/d' "$arkive"/.filenamesall
+
+# Sort video filenames from newst to oldest and only keep the $2 newest ones if photografer not equal to T
+if [[ $photografer != "T" ]]; then
+  sort -r "$arkive"/.filenamesall | head -n $videos >> "$arkive"/.filenames
+else
+  cp "$arkive"/.filenamesall "$arkive"/.filenames
+fi
+
+#Moves or copies all files from the source to the arkive, but does not overwrite existing files
+# and appends $photografer_ to the front of all the filenames moved or copied filenames
+while read filename; do
+  if [[ $photografer = "T" ]]; then
+    mv -n "$folder"/$filename "$arkive"/"$photografer"_$filename;
+    echo ""$folder"/$filename -> moved to -> "$arkive"/"$photografer"_$filename"
+  else
+    cp -n "$folder"/$filename "$arkive"/"$photografer"_$filename;
+    echo ""$folder"/$filename -> copied to -> "$arkive"/"$photografer"_$filename"
+  fi
+done <"$arkive"/.filenames
+
+# Deletes .LRV and .THM files from source if $photografer equals T
+if [[ $photografer = "T" ]]; then
+  rm "$folder"/*.LRV
+  rm "$folder"/*.THM
+  echo "All .LRV and .THM files were deleted from the source"
+fi
+
+# Deletes temp files
+rm "$arkive"/.filenames
+rm "$arkive"/.filenamesall
+
+# Umounts the source disk
+diskutil unmount /Volumes/"$volume"
 
 # # Finds the newest file in the arkive
 # unset -v latest
@@ -56,8 +115,8 @@ arkive=~/Desktop/$(date +%Y%m%d)
 #   [[ $file -nt $latest ]] && latest=$file
 # done
 
-# #Opens the arkive folder
-#open "$arkive"
+# Opens the arkive folder
+open "$arkive"
 
 # Opens the newest video in the arkive folder
 #open "$file"
