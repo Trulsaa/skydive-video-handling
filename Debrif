@@ -29,8 +29,6 @@ else
 
 # Sets default value for videos to 1
   videos=${videos:-1}
-
-#  echo "Number of the newst videos to be copied $videos"
 fi
 
 #Get the current users full name
@@ -39,17 +37,18 @@ username=$(finger `whoami` | awk -F: '{ print $3 }' | head -n1 | gsed 's/^ //')
 # Finds the full path to the video files on the external volume
 #gfind /Volumes -type d \( -path /Volumes/Macintosh\ HD -o -path /Volumes/MobileBackups -o -path /Volumes/Time\ Machine\ Backups -o -path /Volumes/"$username" \) -prune -o -iname '*.MP4' -print
 
-# gir kun filnavn
+# Gives onely file names
 #gfind /Volumes -type d \( -path /Volumes/Macintosh\ HD -o -path /Volumes/MobileBackups -o -path /Volumes/Time\ Machine\ Backups -o -path /Volumes/"$username" \) -prune -o -iname '*.MP4' -print |gsed 's#.*/##'
 
 #Gives file path to folder with *.MP4 (Requires GNU find)
 #gfind /Volumes -type d \( -path /Volumes/Macintosh\ HD -o -path /Volumes/MobileBackups -o -path /Volumes/Time\ Machine\ Backups -o -path /Volumes/"$username" \) -prune -o -iname '*.MP4' -printf '%h\n' | sort | uniq
 
 # Counts the number of uniq directorys with .MP4 inside (Requires GNU find)
-dirs_with_mp4=$(gfind /Volumes -type d \( -path /Volumes/Macintosh\ HD -o -path /Volumes/MobileBackups -o -path /Volumes/Time\ Machine\ Backups -o -path /Volumes/"$username" \) -prune -o -iname '*.MP4' -printf '%h\n' | sort | uniq | wc -l)
+var=($(gfind /Volumes -type d \( -path /Volumes/Macintosh\ HD -o -path /Volumes/MobileBackups -o -path /Volumes/Time\ Machine\ Backups -o -path /Volumes/"$username" \) -prune -o -iname '*.MP4' -printf '%h\n' | sort | uniq | wc -l))
+dirs_with_mp4=${var[0]}
 
 # Checks if there is more or less than one path with .MP4 files and exits if true.
-if [[ "$dirs_with_mp4" != "       1" ]];
+if [[ $dirs_with_mp4 != 1 ]];
 then
   echo "There are $dirs_with_mp4 directorys with MP4 files. Only number accepted is 1. Script stopped"
   exit 1
@@ -64,7 +63,7 @@ volume=$(gfind /Volumes -type d \( -path /Volumes/Macintosh\ HD -o -path /Volume
 
 # Creates a variable with the arkive direktory path with name set to todays date
 arkive=~/Desktop/$(date +%Y%m%d)
-# echo "arkive satt til $arkive"
+# echo "arkive is $arkive"
 
 # Creates a new arkive path
 mkdir -p "$arkive"
@@ -77,7 +76,7 @@ ls -1 "$folder" >> "$arkive"/.filenamesall
 gsed -i '/.LRV/d' "$arkive"/.filenamesall
 gsed -i '/.THM/d' "$arkive"/.filenamesall
 
-# Sort video filenames from newst to oldest and only keep the $2 newest ones if photografer not equal to T
+# Sort video filenames from newst to oldest and only keep the $videos newest ones if photografer not equal to T
 if [[ $photografer != "T" ]]; then
   sort -r "$arkive"/.filenamesall | head -n $videos >> "$arkive"/.filenames
 else
