@@ -3,6 +3,7 @@
 # On a Mac this script requires GNU find. Can be installed by running "brew install findutils --with-default-names" and restarting the Mac
 
 # Reset algorithm for testing (befor test start copy all files from source to a directory called test on Desktop)
+# This part of the script is only written for testing
 if [[ $1 = "-reset" ]]; then
   cp -n ~/Desktop/test/* /Volumes/NO\ NAME/DCIM/100GOPRO/
   echo "Files in /Volumes/NO\ NAME/DCIM/100GOPRO/"
@@ -33,19 +34,19 @@ else
 fi
 
 #Get the current users full name
-username=$(finger `whoami` | awk -F: '{ print $3 }' | head -n1 | sed 's/^ //')
+username=$(finger `whoami` | awk -F: '{ print $3 }' | head -n1 | gsed 's/^ //')
 
 # Finds the full path to the video files on the external volume
-#find /Volumes -type d \( -path /Volumes/Macintosh\ HD -o -path /Volumes/MobileBackups -o -path /Volumes/Time\ Machine\ Backups -o -path /Volumes/"$username" \) -prune -o -name '*.MP4' -print
+#gfind /Volumes -type d \( -path /Volumes/Macintosh\ HD -o -path /Volumes/MobileBackups -o -path /Volumes/Time\ Machine\ Backups -o -path /Volumes/"$username" \) -prune -o -iname '*.MP4' -print
 
 # gir kun filnavn
-#find /Volumes -type d \( -path /Volumes/Macintosh\ HD -o -path /Volumes/MobileBackups -o -path /Volumes/Time\ Machine\ Backups -o -path /Volumes/"$username" \) -prune -o -name '*.MP4' -print |sed 's#.*/##'
+#gfind /Volumes -type d \( -path /Volumes/Macintosh\ HD -o -path /Volumes/MobileBackups -o -path /Volumes/Time\ Machine\ Backups -o -path /Volumes/"$username" \) -prune -o -iname '*.MP4' -print |gsed 's#.*/##'
 
 #Gives file path to folder with *.MP4 (Requires GNU find)
-#find /Volumes -type d \( -path /Volumes/Macintosh\ HD -o -path /Volumes/MobileBackups -o -path /Volumes/Time\ Machine\ Backups -o -path /Volumes/"$username" \) -prune -o -name '*.MP4' -printf '%h\n' | sort | uniq
+#gfind /Volumes -type d \( -path /Volumes/Macintosh\ HD -o -path /Volumes/MobileBackups -o -path /Volumes/Time\ Machine\ Backups -o -path /Volumes/"$username" \) -prune -o -iname '*.MP4' -printf '%h\n' | sort | uniq
 
 # Counts the number of uniq directorys with .MP4 inside (Requires GNU find)
-dirs_with_mp4=$(find /Volumes -type d \( -path /Volumes/Macintosh\ HD -o -path /Volumes/MobileBackups -o -path /Volumes/Time\ Machine\ Backups -o -path /Volumes/"$username" \) -prune -o -name '*.MP4' -printf '%h\n' | sort | uniq | wc -l)
+dirs_with_mp4=$(gfind /Volumes -type d \( -path /Volumes/Macintosh\ HD -o -path /Volumes/MobileBackups -o -path /Volumes/Time\ Machine\ Backups -o -path /Volumes/"$username" \) -prune -o -iname '*.MP4' -printf '%h\n' | sort | uniq | wc -l)
 
 # Checks if there is more or less than one path with .MP4 files and exits if true.
 if [[ "$dirs_with_mp4" != "       1" ]];
@@ -55,11 +56,11 @@ then
 fi
 
 # Creates a variable and sets it to the directory where there are MP4 files
-folder=$(find /Volumes -type d \( -path /Volumes/Macintosh\ HD -o -path /Volumes/MobileBackups -o -path /Volumes/Time\ Machine\ Backups -o -path /Volumes/"$username" \) -prune -o -name '*.MP4' -printf '%h\n' | sort | uniq)
+folder=$(gfind /Volumes -type d \( -path /Volumes/Macintosh\ HD -o -path /Volumes/MobileBackups -o -path /Volumes/Time\ Machine\ Backups -o -path /Volumes/"$username" \) -prune -o -iname '*.MP4' -printf '%h\n' | sort | uniq)
 # echo "The folder variable was set to $folder"
 
 # # Creates a variable and sets it to the volume where there are MP4 file
-volume=$(find /Volumes -type d \( -path /Volumes/Macintosh\ HD -o -path /Volumes/MobileBackups -o -path /Volumes/Time\ Machine\ Backups -o -path /Volumes/"$username" \) -prune -o -name '*.MP4' -printf '%h\n' | sort | uniq | sed 's/\/Volumes\/*//' | sed 's/\/.*//')
+volume=$(gfind /Volumes -type d \( -path /Volumes/Macintosh\ HD -o -path /Volumes/MobileBackups -o -path /Volumes/Time\ Machine\ Backups -o -path /Volumes/"$username" \) -prune -o -iname '*.MP4' -printf '%h\n' | sort | uniq | gsed 's/\/Volumes\/*//' | gsed 's/\/.*//')
 
 # Creates a variable with the arkive direktory path with name set to todays date
 arkive=~/Desktop/$(date +%Y%m%d)
@@ -73,8 +74,8 @@ mkdir -p "$arkive"
 ls -1 "$folder" >> "$arkive"/.filenamesall
 
 # remove lines with .LRV and .THM from .filenames
-sed -i '' '/.LRV/d' "$arkive"/.filenamesall
-sed -i '' '/.THM/d' "$arkive"/.filenamesall
+gsed -i '/.LRV/d' "$arkive"/.filenamesall
+gsed -i '/.THM/d' "$arkive"/.filenamesall
 
 # Sort video filenames from newst to oldest and only keep the $2 newest ones if photografer not equal to T
 if [[ $photografer != "T" ]]; then
