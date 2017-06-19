@@ -83,6 +83,15 @@ else
   cp "$arkive"/.filenamesall "$arkive"/.filenames
 fi
 
+# Echo how many files are to be moved ore copied
+var=$(wc -l < "$arkive"/.filenames)
+files=${var[0]}
+if [[ $photografer = "T" ]]; then
+  echo "Moving $files videos from $folder to $arkive"
+else
+  echo "Copying $files videos from $folder to $arkive"
+fi
+
 #Moves or copies all files from the source to the arkive, but does not overwrite existing files
 # and appends $photografer_ to the front of all the filenames moved or copied filenames
 while read filename; do
