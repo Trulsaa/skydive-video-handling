@@ -24,10 +24,10 @@ else
   echo "Photografer = $1"
   photografer="$1"
 
-# Asks for input and recors it to videos
+  # Asks for input and records it to videos
   read -p "How many of the newest videos should be copied (default = 1)? " videos
 
-# Sets default value for videos to 1
+  # Sets default value for videos to 1
   videos=${videos:-1}
 fi
 
